@@ -27,6 +27,6 @@ class PostRepository extends AbstractRepository
             'comments.replies.replies'=> function ($query){
                 $query->orderBy('created_at', 'desc');
             },
-        ])->get();
+        ])->first();
     }
 }

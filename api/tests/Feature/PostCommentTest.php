@@ -94,7 +94,7 @@ class PostCommentTest extends TestCase
 
     public function testViewPost(){
         $post = Post::first();
-        $response = $this->getJson("api/posts/{$post->id}", []); 
+        $response = $this->getJson("api/posts/{$post->id}", []);
         $response->assertStatus(Response::HTTP_OK);
         $response->assertJsonStructure([
             'message'

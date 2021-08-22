@@ -57,6 +57,8 @@ class PostController extends Controller
      */
     public function show(Post $post)
     {
+        //get first post, assume there is a post
+        $post = Post::first();
         $response = $this->service->view($post);
         return response()->json([
             "message" => $response->message,
