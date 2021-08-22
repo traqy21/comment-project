@@ -1,4 +1,4 @@
-# Commens System
+# Comments System
 ##### Prepared By: Aries Jay Traqueña
 
 The API is written in the Laravel PHP Framework.
