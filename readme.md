@@ -41,7 +41,7 @@ docker-compose exec api vendor/phpunit/phpunit/phpunit
 docker-compose exec api bash
 ``` 
 
-##### The project runs in: http://localhost:8080
+##### The api runs in: http://localhost:8080
 
 ##
 
@@ -77,5 +77,4 @@ npm run build
 npm run lint
 ```
 
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
+##### The project runs in: http://localhost:8081

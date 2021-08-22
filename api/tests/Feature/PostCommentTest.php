@@ -15,7 +15,7 @@ class PostCommentTest extends TestCase
     public function testCreateComment(){
         $post = Post::first();
 
-        $response = $this->postJson("api/posts/{$post->id}/comments", []); 
+        $response = $this->postJson("api/posts/{$post->id}/comments", []);
         $response->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY);
 
         //not uuid comment id
