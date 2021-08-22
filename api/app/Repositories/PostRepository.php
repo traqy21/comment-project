@@ -17,8 +17,16 @@ class PostRepository extends AbstractRepository
 
     public function view(CoreModel $model)
     {
-        return $model->with(['comments' => function ($query){
-            $query->where('layer', 1);
-        }, 'comments.toComments', 'comments.toComments.toComments'])->get();
+        return $model->with([
+            'comments' => function ($query){
+                $query->where('layer', 1)->orderBy('created_at', 'desc');
+            },
+            'comments.replies' => function ($query){
+                $query->orderBy('created_at', 'desc');
+            },
+            'comments.replies.replies'=> function ($query){
+                $query->orderBy('created_at', 'desc');
+            },
+        ])->get();
     }
 }

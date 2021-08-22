@@ -12,7 +12,7 @@ class Comment extends CoreModel
         'layer',
     ];
 
-    public function toComments(){
+    public function replies(){
         return $this->hasMany(Comment::class, 'to_comment_id', 'id');
     }
 }
