@@ -19,6 +19,7 @@ class CreateCommentsTable extends Migration
             $table->string('user_name');
             $table->string('message');
             $table->uuid('to_comment_id')->nullable();
+            $table->unsignedInteger('layer')->default(0);
             $table->timestamps();
 
             $table->foreign('post_id')

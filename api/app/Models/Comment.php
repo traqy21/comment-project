@@ -9,9 +9,10 @@ class Comment extends CoreModel
         'user_name',
         'message',
         'to_comment_id',
+        'layer',
     ];
 
-    public function post(){
-        return $this->belongsTo(Post::class);
+    public function toComments(){
+        return $this->hasMany(Comment::class, 'to_comment_id', 'id');
     }
 }

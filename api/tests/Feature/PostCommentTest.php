@@ -1,131 +1,107 @@
 <?php
 namespace Tests\Feature\SysAdmin;
 
+use App\Models\Post;
 use App\User;
 use Carbon\Carbon;
 use Illuminate\Http\Response;
+use Illuminate\Support\Str;
+use Ramsey\Uuid\Uuid;
 use Tests\TestCase;
 
 class PostCommentTest extends TestCase
 {
 
-    public function testListUrls(){
-        $response = $this->getJson("admin/urls", $this->getHeader());
-        $response->assertStatus(Response::HTTP_OK);
-        $response->assertJsonStructure([
-            'message',
-            'data'
-        ]);
-    }
+    public function testCreateComment(){
+        $post = Post::first();
 
-
-    public function testViewUrl(){
-        $url = factory(Url::class)->create();
-        $response = $this->getJson("admin/urls/{$url->id}", $this->getHeader());
-        $response->assertStatus(Response::HTTP_OK);
-        $response->assertJsonStructure([
-            'message',
-            'data'
-        ]);
-    }
-
-    public function testCreateUrl(){
-        $header = $this->getHeader();
-        $response = $this->postJson("admin/urls", [], $header);
+        $response = $this->postJson("api/posts/{$post->id}/comments", []);
         $response->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY);
-        $response->assertJsonStructure([
-            'message',
-            'errors' => [
-                'original_url'
-            ]
+
+        //not uuid comment id
+        $response = $this->postJson("api/posts/{$post->id}/comments", [
+            'user_name' => Str::random(10),
+            'message' => Str::random(15),
+            'to_comment_id' => Str::random(15),
         ]);
-
-
-        //null slug
-        $url = factory(Url::class)->make();
-        $response = $this->postJson("admin/urls", [
-            "original_url" => $url->original_url
-        ],$header);
-        $response->assertStatus(Response::HTTP_OK);
-        $response->assertJsonStructure([
-            'message',
-        ]);
-
-
-        //not null slug
-        $url = factory(Url::class)->make();
-        $response = $this->postJson("admin/urls", [
-            "slug" => $url->slug,
-            "original_url" => $url->original_url
-        ],$header);
-        $response->assertStatus(Response::HTTP_OK);
-        $response->assertJsonStructure([
-            'message',
-        ]);
-
-        //not null slug
-        $url = factory(Url::class)->make();
-        $response = $this->postJson("admin/urls", [
-            "original_url" => $url->original_url
-        ],$header);
-        $response->assertStatus(Response::HTTP_OK);
-        $response->assertJsonStructure([
-            'message',
-        ]);
-    }
-
-
-    public function testUpdateUrl(){
-        $header = $this->getHeader();
-
-        $createdUrl = factory(Url::class)->create();
-        $response = $this->putJson("admin/urls/{$createdUrl->id}", [], $header);
         $response->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY);
-        $response->assertJsonStructure([
-            'message',
-            'errors' => [
-                'original_url'
-            ]
-        ]);
 
-        //null slug
-        $updateUrl = factory(Url::class)->make();
-        $response = $this->putJson("admin/urls/{$createdUrl->id}", [
-            "original_url" => $updateUrl->original_url
-        ],$header);
+
+        //not existing comment id
+        $response = $this->postJson("api/posts/{$post->id}/comments", [
+            'user_name' => Str::random(10),
+            'message' => Str::random(15),
+            'to_comment_id' => Uuid::uuid4()->toString(),
+        ]);
+        $response->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY);
+
+
+        //1 parent comment
+        $response = $this->postJson("api/posts/{$post->id}/comments", [
+            'user_name' => Str::random(10),
+            'message' => Str::random(15),
+        ]);
+        $commentData = $this->decode($response)->data;
+
+        //2 reply to parent comment
+        $response = $this->postJson("api/posts/{$post->id}/comments", [
+            'user_name' => Str::random(10),
+            'message' => Str::random(15),
+            'to_comment_id' =>$commentData->id,
+        ]);
+        $secondCommentData = $this->decode($response)->data;
         $response->assertStatus(Response::HTTP_OK);
         $response->assertJsonStructure([
-            'message',
+            'message'
         ]);
 
-        //not null slug
-        $updateUrl = factory(Url::class)->make();
-        $response = $this->putJson("admin/urls/{$createdUrl->id}", [
-            "slug" => $updateUrl->slug,
-            "original_url" => $updateUrl->original_url
-        ],$header);
+        //2 reply again to parent comment
+        $response = $this->postJson("api/posts/{$post->id}/comments", [
+            'user_name' => Str::random(10),
+            'message' => Str::random(15),
+            'to_comment_id' =>$commentData->id,
+        ]);
+        $secondCommentData = $this->decode($response)->data;
         $response->assertStatus(Response::HTTP_OK);
         $response->assertJsonStructure([
-            'message',
+            'message'
+        ]);
+
+        //3
+        $response = $this->postJson("api/posts/{$post->id}/comments", [
+            'user_name' => Str::random(10),
+            'message' => Str::random(15),
+            'to_comment_id' => $secondCommentData->id,
+        ]);
+        $thirdCommentData = $this->decode($response)->data;
+        $response->assertStatus(Response::HTTP_OK);
+        $response->assertJsonStructure([
+            'message'
+        ]);
+
+        //4 - cannot process allowed 3 layers only
+        $response = $this->postJson("api/posts/{$post->id}/comments", [
+            'user_name' => Str::random(10),
+            'message' => Str::random(15),
+            'to_comment_id' => $thirdCommentData->id,
+        ]);
+        $fourthCommentData = $this->decode($response)->data;
+        $response->assertStatus(Response::HTTP_BAD_REQUEST);
+        $response->assertJsonStructure([
+            'message'
         ]);
     }
 
-    public function testDeleteUrl(){
-        $header = $this->getHeader();
-
-        $createdUrl = factory(Url::class)->create();
-        $response = $this->deleteJson("admin/urls/{$createdUrl->id}", [],$header);
+    public function testViewPost(){
+        $post = Post::first();
+        $response = $this->getJson("api/posts/{$post->id}", []);
+        $this->debug($response);
         $response->assertStatus(Response::HTTP_OK);
         $response->assertJsonStructure([
-            'message',
+            'message'
         ]);
+
     }
 
-    public function testGetSlug(){
-        $createdUrl = factory(Url::class)->create([
-            'original_url' => 'https://www.techinasia.com/car-rental-startup-smove'
-        ]);
-        $response = $this->getJson("{$createdUrl->slug}");
-        $response->assertStatus(301);
-    }
+
 }

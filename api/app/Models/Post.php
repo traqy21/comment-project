@@ -6,6 +6,7 @@ class Post extends CoreModel
 {
     protected $fillable = [
         'title',
+        'description'
     ];
 
     public function comments(){
