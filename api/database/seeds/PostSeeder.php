@@ -17,7 +17,7 @@ class PostSeeder extends Seeder
      */
     public function run()
     {
-        \App\Models\Post::firstOrCreate([ 'title' => 'Sample Post'], [
+        \App\Models\Post::firstOrCreate([ 'title' => 'Labrador Retrievers'], [
             'description' => $this->faker->paragraph(2)
         ])->fresh();
     }

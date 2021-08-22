@@ -11,6 +11,7 @@ class CommentService extends AbstractService
 {
     public function __construct(CommentRepository $repository)
     {
+        $this->module = 'comment';
         parent::__construct($repository);
     }
 

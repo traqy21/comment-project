@@ -13,7 +13,7 @@ use Illuminate\Http\Request;
 |
 */
 Route::post('posts/{post}/comments', 'CommentController@store')->name('comment.store');
-Route::get('posts/{post}', 'PostController@show')->name('comment.show');
+Route::get('posts/{id}', 'PostController@show')->name('comment.show');
 
 Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();

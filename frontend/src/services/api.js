@@ -21,13 +21,10 @@ const POST = (uri, params, headers = {}) => {
             .catch(error => { 
                 error = error.response; 
                 let errors = {}; 
-                switch (error.status) {
+                console.log(error.data);
+                switch (error.status) { 
                     case 422:
-                        _.each(
-                            error.data,
-                            (item, key) => (errors[key] = _.head(item))
-                        );
-
+                        _.each(error.data.errors, (item, key) => (errors[key] = _.head(item)));  
                         reject({
                             status: error.status,
                             errors
