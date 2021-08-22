@@ -18,15 +18,13 @@ class CommentService extends AbstractService
     {
         $toCommentId = (isset($data['to_comment_id'])) ? $data['to_comment_id'] : null;
         if(!is_null($toCommentId)){
-            //get to comment id
+            //assign layer
             $parentComment = $this->repository->find('id', $toCommentId);
-            Log::debug('layer', [$parentComment->layer]);
             $data['layer'] = $parentComment->layer + 1;
 
             if($data['layer'] > 3){
                 return $this->response(400, 'create.400');
             }
-
         } else {
             $data['layer'] = 1;
         }
