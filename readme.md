@@ -30,6 +30,7 @@ docker-compose up -d
 ```bash  
 docker-compose exec api infrastructure/dev/scripts/initiate-project.sh 
 ```
+##### The api runs in: http://localhost:8080
  
 #### Running all tests:
 ```bash
@@ -41,7 +42,7 @@ docker-compose exec api vendor/phpunit/phpunit/phpunit
 docker-compose exec api bash
 ``` 
 
-##### The api runs in: http://localhost:8080
+
 
 ##
 
@@ -67,6 +68,8 @@ npm install
 npm run serve
 ```
 
+##### The project runs in: http://localhost:8081
+
 #### Compiles and minifies for production
 ```
 npm run build
@@ -77,4 +80,3 @@ npm run build
 npm run lint
 ```
 
-##### The project runs in: http://localhost:8081
